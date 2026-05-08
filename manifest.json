@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Padua Modifer",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "matches": ["https://my.padua.qld.edu.au/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
