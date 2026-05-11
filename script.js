@@ -14,7 +14,21 @@ const NEW_MAGNIFY =
 const NEW_TRAIN =
   "https://github.com/call30-sketch/paduaimage/blob/main/train.png?raw=true";
 
-const FINAL_HEADER_TEXT = "day something";
+// 🔴 NOW LOADED FROM GITHUB
+let FINAL_HEADER_TEXT = "loading...";
+
+async function loadHeaderTextFromGitHub() {
+    try {
+        const res = await fetch(
+            "https://raw.githubusercontent.com/call30-sketch/paduaimage/main/header.txt?cache=" + Date.now()
+        );
+
+        FINAL_HEADER_TEXT = (await res.text()).trim();
+    } catch (e) {
+        console.log("Failed to load header text:", e);
+        FINAL_HEADER_TEXT = "day something";
+    }
+}
 
 // =========================
 // CORE FUNCTIONS
@@ -34,7 +48,7 @@ function replaceImages() {
 }
 
 // =========================
-// SAFE TEXT REPLACER (FIXED)
+// SAFE TEXT REPLACER
 // =========================
 
 function replaceTextGlobally(find, replace) {
@@ -144,7 +158,7 @@ function modifyTimetableLink() {
 }
 
 // =========================
-// BACKGROUND FIX
+// BACKGROUND
 // =========================
 
 function changeBackgroundColor() {
@@ -158,7 +172,6 @@ function changeBackgroundColor() {
     function updateColor() {
         hue = (hue + 1) % 360;
 
-        // HSL makes smooth rainbow cycling easy
         const color = `hsl(${hue}, 100%, 50%)`;
 
         style.textContent = `
@@ -175,7 +188,7 @@ function changeBackgroundColor() {
 }
 
 // =========================
-// TEXT REPLACEMENTS
+// EMOJI TILES
 // =========================
 
 function replaceTileIconsWithEmoji() {
@@ -189,13 +202,9 @@ function replaceTileIconsWithEmoji() {
 
         if (tile.querySelector(".custom-emoji-tile")) return;
 
-        let foundIcon = false;
-
         const icons = tile.querySelectorAll("img, i, svg");
 
         icons.forEach(icon => {
-            foundIcon = true;
-
             const emoji = document.createElement("div");
             emoji.className = "custom-emoji-tile";
             emoji.textContent = getRandomEmoji();
@@ -208,7 +217,6 @@ function replaceTileIconsWithEmoji() {
             emoji.style.fontSize = "95px";
             emoji.style.margin = "0 auto";
 
-            // ✅ hover animation setup
             emoji.style.transition = "transform 0.2s ease";
             emoji.addEventListener("mouseenter", () => {
                 emoji.style.transform = "translateY(-8px)";
@@ -219,39 +227,12 @@ function replaceTileIconsWithEmoji() {
 
             icon.replaceWith(emoji);
         });
-
-        if (!foundIcon) {
-            const bg = getComputedStyle(tile).backgroundImage;
-
-            if (bg && bg !== "none") {
-                tile.style.backgroundImage = "none";
-
-                const emoji = document.createElement("div");
-                emoji.className = "custom-emoji-tile";
-                emoji.textContent = getRandomEmoji();
-
-                emoji.style.width = "120.99px";
-                emoji.style.height = "121px";
-                emoji.style.display = "flex";
-                emoji.style.alignItems = "center";
-                emoji.style.justifyContent = "center";
-                emoji.style.fontSize = "95px";
-                emoji.style.margin = "0 auto";
-
-                // ✅ hover animation
-                emoji.style.transition = "transform 0.2s ease";
-                emoji.addEventListener("mouseenter", () => {
-                    emoji.style.transform = "translateY(-8px)";
-                });
-                emoji.addEventListener("mouseleave", () => {
-                    emoji.style.transform = "translateY(0px)";
-                });
-
-                tile.insertBefore(emoji, tile.firstChild);
-            }
-        }
     });
 }
+
+// =========================
+// TEXT REPLACEMENTS
+// =========================
 
 function replaceText() {
 
@@ -259,41 +240,11 @@ function replaceText() {
     replaceTextGlobally("Good Morning", "BAD Morning");
     replaceTextGlobally("Good Afternoon", "BAD Afternoon");
 
-    document.querySelectorAll("a.icon-approve span").forEach(span => {
-        if (span.textContent.includes("Grades")) {
-            span.textContent = "Your A+'s";
-        }
-    });
-
-    document.querySelectorAll("a.icon-settings span").forEach(span => {
-        if (span.textContent.includes("Insights")) {
-            span.textContent = "Your GPA";
-        }
-    });
-
-    document.querySelectorAll("a.icon-calendar span").forEach(span => {
-        if (span.textContent.includes("Calendar")) {
-            span.textContent = "📅📆🗓️";
-        }
-    });
-
-    document.querySelectorAll("a.icon-news span").forEach(span => {
-        if (span.textContent.includes("Notices")) {
-            span.textContent = "News 📰🗞️";
-        }
-    });
-
     document.querySelectorAll("[data-timetable-header]").forEach(header => {
         if (header.textContent !== FINAL_HEADER_TEXT) {
             header.textContent = FINAL_HEADER_TEXT;
             header.style.color = "black";
         }
-    });
-
-    document.querySelectorAll("th").forEach(th => {
-        if (th.textContent.includes("Pd 1")) th.textContent = "HELL";
-        if (th.textContent.includes("Pd 3")) th.textContent = "Shortest period";
-        if (th.textContent.includes("Pd 5")) th.textContent = "THE END";
     });
 }
 
@@ -333,7 +284,10 @@ observer.observe(document.body, {
 });
 
 // =========================
-// INITIAL RUN
+// INIT (IMPORTANT)
 // =========================
 
-runAll();
+(async function init() {
+    await loadHeaderTextFromGitHub();
+    runAll();
+})();
