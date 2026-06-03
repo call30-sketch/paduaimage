@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "x",
+  "version": "1.0",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://my.padua.qld.edu.au/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
